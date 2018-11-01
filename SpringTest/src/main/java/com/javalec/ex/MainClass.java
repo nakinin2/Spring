@@ -11,7 +11,7 @@ public class MainClass {
 		calculation.add();
 		calculation.sub();
 		calculation.mult();
-		calculation.div();
+		calculation.div(); 
 	}
 
 }
