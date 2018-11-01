@@ -24,6 +24,6 @@ public class Calculator {
 		System.out.println("division()");
 		int result = f  / s;
 		System.out.println(f + " / "+ s + "=" + result);
-	}
+	}//
 
 }

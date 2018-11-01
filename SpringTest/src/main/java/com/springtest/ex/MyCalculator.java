@@ -25,7 +25,7 @@ public class MyCalculator {
 	
 	public void div() {
 		calculator.division(firstNum, secondNum);
-	}
+	}//
 	
 	public void setCalculator(Calculator calculator) {
 		this.calculator = calculator;
