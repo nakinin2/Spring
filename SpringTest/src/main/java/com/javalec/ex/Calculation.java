@@ -36,5 +36,5 @@ public class Calculation {
 	public void div() {
 		System.out.println("div()");
 		System.out.println(firstNum + " / "+ secondNum + "=" + (firstNum / secondNum));
-	}//
+	}
 }

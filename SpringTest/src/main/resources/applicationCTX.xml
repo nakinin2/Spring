@@ -11,7 +11,7 @@
 		</property>
 		<property name="firstNum" value="10" />
 		<property name="secondNum" value="2"></property>
-	</bean><!--  -->
+	</bean>
 
 </beans>
 
