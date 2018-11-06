@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="board">
+	<!-- Use type aliases to avoid typing the full classname every time. -->
+	<resultMap id="BoardResult" type="board">
+		<result property="brd_no" column="brd_no"/>
+	    <result property="brd_subject" column="brd_subject"/>
+	    <result property="brd_content" column="brd_content"/>
+	    <result property="brd_readcount" column="brd_readcount"/>
+	    <result property="brd_reg_date" column="brd_reg_date"/>
+	    <result property="brd_update_date" column="brd_update_date"/>
+	    <result property="brd_del_yn" column="brd_del_yn"/>
+	    <result property="ref" column="ref"/>
+	    <result property="re_step" column="re_step"/>
+	    <result property="re_level" column="re_level"/>
+	    <result property="m_no" column="m_no"/>
+	    <result property="m_nick" column="m_nick"/>
+	    <result property="m_passwd" column="m_passwd"/>	    
+	    <result property="startRow" column="startRow"/>
+	    <result property="endRow" column="endRow"/>
+	    <result property="searchType" column="searchType"/>
+	    <result property="searchTxt" column="searchTxt"/>
+	    <result property="replycount" column="replycount"/>
+	    <result property="byteSize" column="byteSize"/>
+	    <result property="newday" column="newday"/>
+	</resultMap>
+	
+	<select id="boardTotal" parameterType="board" resultType="Integer">
+  		select count(*) from bow_board b, bow_member m where b.m_no=m.m_no
+	  		<if test="searchTxt != null">
+	  			<choose>
+		  			<when test="searchType == 'all'">
+			  			<if test="searchTxt == ''">
+	  					and (brd_subject like '%'||#{searchTxt}||'%' or brd_content like '%'||#{searchTxt}||'%')
+		  				</if>
+		  				<if test="searchTxt != ''">
+	  					and (brd_subject like '%'||#{searchTxt}||'%' or brd_content like '%'||#{searchTxt}||'%') and brd_del_yn = 'n'
+		  				</if>
+	  				</when>
+		  			<when test="searchType == 'brd_subject'">
+	  					and brd_subject like '%'||#{searchTxt}||'%' and brd_del_yn = 'n'
+	  				</when>
+	  				<when test="searchType == 'brd_content'">
+	  					and brd_content like '%'||#{searchTxt}||'%' and brd_del_yn = 'n'
+	  				</when>
+	  				<when test="searchType == 'm_nick'">
+	  					and m_nick like '%'||#{searchTxt}||'%' and brd_del_yn = 'n'
+	  				</when>
+	  			</choose>
+	  		</if>
+  	</select>
+    
+    <select id="boardList" parameterType="board" resultMap="BoardResult">
+		select * from (select rownum rn, a.* from (select b.*, m.m_nick as m_nick, (select count(*) from bow_board_re br where b.brd_no=br.brd_no and re_del_yn='n') as replycount, length(brd_subject) as sublength from bow_board b, bow_member m where b.m_no=m.m_no
+	  		<if test="searchTxt != null">
+	  			<choose>
+		  			<when test="searchType == 'all'">
+						<if test="searchTxt == ''">
+	  					and (brd_subject like '%'||#{searchTxt}||'%' or brd_content like '%'||#{searchTxt}||'%')
+		  				</if>
+		  				<if test="searchTxt != ''">
+	  					and (brd_subject like '%'||#{searchTxt}||'%' or brd_content like '%'||#{searchTxt}||'%') and brd_del_yn = 'n'
+		  				</if>
+	  				</when>
+		  			<when test="searchType == 'brd_subject'">
+	  					and brd_subject like '%'||#{searchTxt}||'%' and brd_del_yn = 'n'
+	  				</when>
+	  				<when test="searchType == 'brd_content'">
+	  					and brd_content like '%'||#{searchTxt}||'%' and brd_del_yn = 'n'
+	  				</when>
+	  				<when test="searchType == 'm_nick'">
+	  					and m.m_nick like '%'||#{searchTxt}||'%' and brd_del_yn = 'n'
+	  				</when>
+	  			</choose>
+	  		</if>
+		order by ref desc, re_step) a) where rn between #{startRow} and #{endRow}
+  	</select>
+  	
+  	<update id="boardHit" parameterType="Integer">
+    	update bow_board set brd_readcount=brd_readcount+1 where brd_no=#{brd_no}
+    </update>
+  	
+  	<select id="boardSelect" parameterType="Integer" resultType="board">
+  		select b.*, m.m_nick as m_nick, vsize(brd_content) as byteSize from bow_board b, bow_member m where b.brd_no=#{brd_no} and b.m_no=m.m_no
+	</select>
+  	
+  	<select id="insertNo" resultType="Integer">
+  		select nvl(max(brd_no),0)+1 from bow_board
+  	</select>
+  	
+  	<insert id="boardInsert" parameterType="board">
+  		insert into bow_board values(#{brd_no},#{brd_subject},#{brd_content},0,sysdate,null,'n',#{ref},#{re_step},#{re_level},#{m_no})
+  	</insert>
+  	
+  	<update id="updateRe_step" parameterType="board">
+  		update bow_board set re_step=re_step+1 where ref=#{ref} and re_step>#{re_step}
+  	</update>
+	
+    <update id="boardUpdate" parameterType="board">
+    	update bow_board set brd_subject=#{brd_subject},brd_content=#{brd_content},brd_update_date=sysdate where brd_no=#{brd_no}
+	</update>
+	
+	<select id="deletePwdChk" parameterType="Integer" resultType="String">
+		select m.m_passwd as m_passwd from bow_board b, bow_member m where b.brd_no=#{brd_no} and b.m_no=m.m_no
+	</select>
+	
+	<update id="boardDelete" parameterType="Integer">
+		update bow_board set brd_del_yn='y' where brd_no=#{brd_no}
+	</update>
+	
+	<update id="replyDelete" parameterType="Integer">
+		update bow_board_re set re_del_yn='y' where brd_no=#{brd_no}
+	</update>
+	
+	<select id="refTotal" parameterType="Integer" resultType="Integer">
+		select count(*) from  bow_board b, (select ref , re_level from bow_board where brd_no = #{brd_no}) a where b.ref=a.ref and a.re_level+1 = b.re_level and brd_del_yn='n'
+	</select>
+	
+	<select id="newday" resultType="java.sql.Date">
+		select sysdate as newday from dual
+	</select>
+	
+	<select id="refLimit" parameterType="Integer" resultType="Integer">
+		select count(*) as reflimit from bow_board where ref=#{ref} and brd_del_yn='n'
+	</select>
+	
+</mapper>

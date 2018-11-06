@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="reply">
+	<!-- Use type aliases to avoid typing the full classname every time. -->
+	<resultMap id="replyResult" type="reply">
+		<result property="re_no" column="re_no" />
+		<result property="re_content" column="re_content" />
+		<result property="re_reg_date" column="re_reg_date" />
+		<result property="re_update_date" column="re_update_date" />
+		<result property="re_del_yn" column="re_del_yn" />
+		<result property="brd_no" column="brd_no" />
+		<result property="m_no" column="m_no" />
+		<result property="m_nick" column="m_nick" />
+		<result property="relength" column="relength" />		
+	</resultMap>
+
+	<select id="selectReply" resultType="reply" parameterType="Integer">
+		select re_no, re_content, re_content as up_content, to_char(re_reg_date, 'yyyy.mm.dd. hh24:mi') as
+		re_reg_date, m.m_no, m.m_nick, length(re_content) as relength from bow_board_Re b, (select m_no, m_nick from bow_member where m_del_yn='n') m where
+		b.m_no = m.m_no and re_del_yn = 'n' and brd_no = #{brd_no} order by re_no
+	</select>
+	
+	<select id="replyNo" resultType="Integer">
+		select nvl(max(re_no),0)+1 from bow_board_re
+	</select>
+	
+	<insert id="insertReply" parameterType="reply">
+		insert into bow_board_re values
+		(#{re_no},#{re_content},sysdate,null,'n',#{brd_no},#{m_no})
+	</insert>
+
+	<update id="updateReply" parameterType="reply">
+		update bow_board_re set re_content=#{re_content}, re_update_date=sysdate where re_no=#{re_no} and re_del_yn='n'
+	</update>
+
+	<update id="deleteReply" parameterType="Integer">
+		update bow_board_re set re_del_yn='y' where re_no=#{re_no} and re_del_yn='n'
+	</update>
+	
+	<select id="replyCount" parameterType="Integer" resultType="Integer" >
+		select count(*) from bow_board_re where brd_no=#{brd_no} and re_del_yn='n'
+	</select>
+	
+	<!-- <select id="replyOne" resultType="reply" parameterType="Integer">
+		select length(re_content) as relength, r.* from bow_board_re r where re_no=#{re_no}
+	</select> -->
+	
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="file">
+	<!-- Use type aliases to avoid typing the full classname every time. -->
+	<resultMap id="fileResult" type="file">
+		<result property="f_no" column="f_no" />
+		<result property="f_original_name" column="f_original_name" />
+		<result property="f_stored_name" column="f_stored_name" />
+		<result property="f_size" column="f_size" />
+		<result property="f_del_yn" column="f_del_yn" />
+		<result property="brd_no" column="brd_no" />
+	</resultMap>
+	
+	<select id="selectFile" resultType="file" parameterType="Integer">
+		select * from bow_board_file where brd_no = #{brd_no} order by f_no
+	</select>
+	
+	<select id="fileNo" resultType="Integer">
+		select nvl(max(f_no),0)+1 from bow_board_file
+	</select>
+	
+	<insert id="fileInsert" parameterType="file">
+		insert into bow_board_file values(#{f_no},#{f_original_name},#{f_stored_name},#{f_size},#{brd_no})		
+	</insert>
+	
+	<select id="fileCount" parameterType="Integer" resultType="Integer">
+		select count(*) from bow_board_file where brd_no=#{brd_no}
+	</select>
+	
+	<delete id="fileDelete" parameterType="file">
+		delete from bow_board_file where f_no=#{f_no}
+	</delete>
+	
+	<delete id="fileDeleteAll" parameterType="Integer">
+		delete from bow_board_file where brd_no=#{brd_no}
+	</delete>
+	
+	<select id="fileSelect" parameterType="Integer" resultType="String">
+		select f_stored_name from bow_board_file where f_no=#{f_no}
+	</select>
+	
+</mapper>

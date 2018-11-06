@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<properties resource="jdbc.properties"></properties>
+	<typeAliases>
+		<typeAlias alias="member" type="je.model.Member" />
+		<typeAlias alias="board" type="je.model.Board"/>
+		<typeAlias alias="reply" type="je.model.BoardReply"/>
+		<typeAlias alias="file" type="je.model.BoardFile"/>		
+	</typeAliases>
+	<mappers>
+		<mapper resource="mybatis/Member.xml" />
+		<mapper resource="mybatis/Board.xml" />
+		<mapper resource="mybatis/BoardReply.xml" />
+		<mapper resource="mybatis/BoardFile.xml" />	
+	</mappers>
+</configuration>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="member">
+	<!-- Use type aliases to avoid typing the full classname every time. -->
+	<resultMap id="MemberResult" type="member">
+		<result property="m_no" column="m_no"/>
+		<result property="m_email" column="m_eamil"/>
+		<result property="m_passwd" column="m_passwd"/>
+		<result property="m_nick" column="m_nick"/>
+		<result property="m_reg_date" column="m_reg_date"/>
+		<result property="m_out_date" column="m_out_date"/>
+		<result property="m_del_yn" column="m_del_yn"/>
+	</resultMap>
+	
+	<select id="selectNum" resultType="Integer">
+		select nvl(max(m_no),0)+1 from bow_member
+	</select>
+	
+	<insert id="insertMember" parameterType="member">
+		insert into bow_member values(#{m_no},#{m_email},#{m_passwd},#{m_nick},sysdate,null,'n')
+	</insert>
+	
+	<select id="selectMno" parameterType="String" resultType="Integer">
+		select nvl(max(m_no),0) as m_no from bow_member where m_email=#{m_email} and m_del_yn='y'
+	</select>
+	
+	<update id="insertReMember" parameterType="member">
+		update bow_member set m_passwd=#{m_passwd},m_nick=#{m_nick},m_reg_date=sysdate,m_del_yn='n' where m_no=#{m_no}
+	</update>
+	
+	<select id="loginChk" parameterType="String" resultType="String">
+		select m_passwd from bow_member where m_email=#{m_email} and m_del_yn='n'
+	</select>
+	
+	<select id="selectMno2" parameterType="String" resultType="String">
+		select nvl(m_no,0) as m_no from bow_member where m_email=#{m_email} and m_del_yn='n'
+	</select>
+	
+	<select id="m_emailChk" parameterType="String" resultType="Integer">
+		select count(*) from bow_member where m_email=#{m_email}
+	</select>
+	
+	<select id="selectNick" parameterType="Integer" resultType="String">
+		select m_nick from bow_member where m_no=#{no}
+	</select>
+	
+	<select id="nickChk" parameterType="member" resultType="String">
+		(select m_nick from bow_member where m_nick=#{m_nick} and m_no!=#{no} and m_del_yn='n') union (select m_nick from bow_member where m_nick=#{m_nick} and m_no=#{no} and m_del_yn='n')
+	</select>
+	
+</mapper>
